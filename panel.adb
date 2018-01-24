@@ -33,7 +33,16 @@ procedure Panel is
   Pogoda : StanyPogody := Deszcz with Atomic;
 	
   type TypySterowania is (Automatyczne, Manualne);
-  Sterowanie : TypySterowania := Automatyczne with Atomic;
+  SterowaniePolnoc : TypySterowania := Automatyczne with Atomic;
+  SterowaniePoludnie : TypySterowania := Automatyczne with Atomic;
+  SterowanieWschod : TypySterowania := Automatyczne with Atomic;
+  SterowanieZachod : TypySterowania := Automatyczne with Atomic;
+	
+  type TypyZaluzji is (Polnoc, Poludnie, Wschod, Zachod);
+  Zaluzja : TypyZaluzji := Polnoc with Atomic;
+	
+  type TypySterowaniaZaluzja is (Zaslon, Odslon, Stop);
+  SterowanieZaluzja : TypySterowaniaZaluzja := Stop with Atomic;
   
   type Atrybuty is (Czysty, Jasny, Podkreslony, Negatyw, Migajacy, Szary);
 
@@ -81,7 +90,8 @@ procedure Panel is
       Put( ASCII.ESC & "[0m");
     end Pisz_XY;  
 		
-
+		--
+		--
 		procedure RysujZaluzje(X, Y : Positive; Zamkniete : Integer) is
 			tmpY : Positive := Y;
 		begin
@@ -151,7 +161,8 @@ procedure Panel is
 	    	Ekran.RysujZaluzje(X,Y,Zasloniete);
 			end if;
 		end AktualizujZaluzje;
-		
+		--
+		--
 		
     procedure Pisz_Float_XY(X, Y: Positive; 
                             Num: Float; 
@@ -184,9 +195,13 @@ procedure Panel is
       Ekran.Pisz_XY(40,10,"Południe", Atryb=>Podkreslony);
       Ekran.Pisz_XY(65,6,"Wschód", Atryb=>Podkreslony);
       Ekran.Pisz_XY(15,6,"Zachód", Atryb=>Podkreslony);
-      Ekran.Pisz_XY(1,19,"+= Q-koniec, A-automatyczne, M-manualne =+");
+      Ekran.Pisz_XY(1,18,"+= Q-koniec, A-automatyczne, M-manualne =+");
+      Ekran.Pisz_XY(1,19,"+= [-odsłoń, ]-zasłoń, S-stop");
       Ekran.Pisz_XY(1,20,"+= D-Deszcz, S-Słońce =+");
-      Ekran.Pisz_XY(1,21,"+= 1-Północ, 2-Południe, 3-Wschód, 4-Zachód =+");
+      Ekran.Pisz_XY(1,21,"+= 1-Północ");
+      Ekran.Pisz_XY(1,22,"+= 2-Południe");
+      Ekran.Pisz_XY(1,23,"+= 3-Wschód");
+      Ekran.Pisz_XY(1,24,"+= 4-Zachód");
     end Tlo; 
         
   end Ekran;
@@ -215,9 +230,13 @@ procedure Panel is
 			Ekran.Czysc;
 			Ekran.Tlo;
       Ekran.RysujWszystkie(Godzina);
-      Ekran.Pisz_XY(10 ,18, Pogoda'Img, Atryb=>Podkreslony);
-      Ekran.Pisz_XY(18 ,18, Sterowanie'Img, Atryb=>Podkreslony);
-			Ekran.Pisz_XY(2,18, Godzina'Img & ":00", Atryb=>Czysty);
+			Ekran.Pisz_XY(2,17, Godzina'Img & ":00", Atryb=>Czysty);
+      Ekran.Pisz_XY(10 ,17, Pogoda'Img, Atryb=>Podkreslony);
+      Ekran.Pisz_XY(20 ,17, "Aktualnie wybrana: " & Zaluzja'Img, Atryb=>Podkreslony);
+      Ekran.Pisz_XY(18 ,21, SterowaniePolnoc'Img, Atryb=>Podkreslony);
+      Ekran.Pisz_XY(18 ,22, SterowaniePoludnie'Img, Atryb=>Podkreslony);
+      Ekran.Pisz_XY(18 ,23, SterowanieWschod'Img, Atryb=>Podkreslony);
+      Ekran.Pisz_XY(18 ,24, SterowanieZachod'Img, Atryb=>Podkreslony);
 			Godzina := (Godzina + 1) mod 24;
 			
 			
@@ -240,8 +259,29 @@ begin
     Get_Immediate(Zn);
     exit when Zn in 'q'|'Q';
     Pogoda := (if Zn in 'D'|'d' then Deszcz elsif Zn in 'S'|'s' then Slonce else Pogoda);
-    Sterowanie := (if Zn in 'A'|'a' then Automatyczne
-			elsif Zn in 'M'|'m' then Manualne else Sterowanie);
+		-- zmiana sterowania żaluzji
+		if (Zaluzja = Polnoc) then
+    	SterowaniePolnoc := (if Zn in 'A'|'a' then Automatyczne
+				elsif Zn in 'M'|'m' then Manualne else SterowaniePolnoc);
+		elsif (Zaluzja = Poludnie) then
+    	SterowaniePoludnie := (if Zn in 'A'|'a' then Automatyczne
+				elsif Zn in 'M'|'m' then Manualne else SterowaniePoludnie);
+		elsif (Zaluzja = Wschod) then
+    	SterowanieWschod := (if Zn in 'A'|'a' then Automatyczne
+				elsif Zn in 'M'|'m' then Manualne else SterowanieWschod);
+		elsif (Zaluzja = Zachod) then
+    	SterowanieZachod := (if Zn in 'A'|'a' then Automatyczne
+				elsif Zn in 'M'|'m' then Manualne else SterowanieZachod);
+		end if;
+		-- wybór żaluzji
+    Zaluzja := (if Zn in '1' then Polnoc
+			elsif Zn in '2' then Poludnie
+			elsif Zn in '3' then Wschod 
+		  elsif Zn in '4' then Zachod else Zaluzja);
+			
+			SterowanieZaluzja := (if Zn in '[' then Odslon
+				elsif Zn in ']' then Zaslon
+				elsif Zn in 'S'|'s' then Stop else SterowanieZaluzja);
   end loop;
   Koniec := True;
 	delay 0.5;
