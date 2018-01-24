@@ -29,14 +29,30 @@ procedure Panel is
   
   Koniec : Boolean := False with Atomic;
   
-  type Stany is (Deszcz, Slonce);
-  Stan : Stany := Deszcz with Atomic;
+  type StanyPogody is (Deszcz, Slonce);
+  Pogoda : StanyPogody := Deszcz with Atomic;
+	
+  type TypySterowania is (Automatyczne, Manualne);
+  Sterowanie : TypySterowania := Automatyczne with Atomic;
   
   type Atrybuty is (Czysty, Jasny, Podkreslony, Negatyw, Migajacy, Szary);
 
   protected Ekran  is
     procedure Pisz_XY(X,Y: Positive; S: String; Atryb : Atrybuty := Czysty);
 		procedure RysujZaluzje(X, Y : Positive; Zamkniete : Integer);
+		procedure RysujPolnoc(Godzina : Natural);
+		procedure RysujPoludnie(Godzina : Natural);
+		procedure RysujWschod(Godzina : Natural);
+		procedure RysujZachod(Godzina : Natural);
+		procedure RysujWszystkie(Godzina : Natural);
+		
+		procedure AktualizujZaluzje(X, Y : Positive;
+																Godzina : Natural;
+																GodzinaZaslaniania : Natural;
+																GodzinaOdslaniania : Natural;
+																GodzinaZaslonietych : Natural;
+																GodzinaOdslonietych : Natural);
+		
     procedure Pisz_Float_XY(X, Y: Positive; 
                             Num: Float; 
                             Pre: Natural := 3; 
@@ -78,8 +94,66 @@ procedure Panel is
 				tmpY := tmpY + 1;
 			end loop;
 		end RysujZaluzje;
-	
-    
+		
+		procedure RysujPolnoc(Godzina : Natural) is
+		begin
+			AktualizujZaluzje(38,3,Godzina,14,3,21, 12);
+		end RysujPolnoc;
+		
+		procedure RysujPoludnie(Godzina : Natural) is
+		begin
+			AktualizujZaluzje(38,11,Godzina,14,6,18, 12);
+		end RysujPoludnie;
+		
+		procedure RysujWschod(Godzina : Natural) is
+		begin
+			AktualizujZaluzje(63,7,Godzina,14,5,17, 12);
+		end RysujWschod;
+		
+		procedure RysujZachod(Godzina : Natural) is
+		begin
+			AktualizujZaluzje(13,7,Godzina,16,10,21, 13);
+		end RysujZachod;
+		
+		procedure RysujWszystkie(Godzina : Natural) is
+		begin
+			RysujPolnoc(Godzina);
+			RysujPoludnie(Godzina);
+			RysujWschod(Godzina);
+			RysujZachod(Godzina);
+		end RysujWszystkie;
+		
+		procedure AktualizujZaluzje(X, Y : Positive;
+																Godzina : Natural;
+																GodzinaZaslaniania : Natural;
+																GodzinaOdslaniania : Natural;
+																GodzinaZaslonietych : Natural;
+																GodzinaOdslonietych : Natural) is
+			Zasloniete : Natural;
+			ZaslonieteRzeczywiste : Float;
+			CzasZaslaniania : Natural := GodzinaZaslonietych - GodzinaZaslaniania;
+			CzasOdslaniania : Natural := GodzinaOdslonietych - GodzinaOdslaniania;
+		begin
+			if (Godzina < GodzinaOdslaniania or Godzina >= GodzinaZaslonietych) then
+				ZaslonieteRzeczywiste := 6.0;
+				Zasloniete := Natural(ZaslonieteRzeczywiste);
+				Ekran.RysujZaluzje(X,Y,Zasloniete);
+			elsif (Godzina < GodzinaOdslonietych and Godzina >= GodzinaOdslaniania) then
+				ZaslonieteRzeczywiste := ZaslonieteRzeczywiste - 6.0 / Float(CzasOdslaniania);
+				Zasloniete := Natural(ZaslonieteRzeczywiste);
+	    	Ekran.RysujZaluzje(X,Y,Zasloniete);
+			elsif (Godzina < GodzinaZaslaniania and Godzina >= GodzinaOdslonietych) then
+				ZaslonieteRzeczywiste := 0.0;
+				Zasloniete := Natural(ZaslonieteRzeczywiste);
+	    	Ekran.RysujZaluzje(X,Y,Zasloniete);
+			elsif (Godzina >= GodzinaZaslaniania and Godzina < GodzinaZaslonietych) then
+				ZaslonieteRzeczywiste := ZaslonieteRzeczywiste + 6.0 / Float(CzasOdslaniania);
+				Zasloniete := Natural(ZaslonieteRzeczywiste);
+	    	Ekran.RysujZaluzje(X,Y,Zasloniete);
+			end if;
+		end AktualizujZaluzje;
+		
+		
     procedure Pisz_Float_XY(X, Y: Positive; 
                             Num: Float; 
                             Pre: Natural := 3; 
@@ -100,16 +174,17 @@ procedure Panel is
     begin
       Put(ASCII.ESC & "[2J");
     end Czysc;   
-    
+		
+    -- RYSOWANIE TŁA NA POCZĄTKU
     procedure Tlo is
     begin
       Ekran.Czysc;
       Ekran.Pisz_XY(20,1,"+=========== Sterowanie żaluzjami ===========+");
-      Ekran.Pisz_XY(40,3,"Północ", Atryb=>Czysty);
-      Ekran.RysujZaluzje(38,4,6);
-      Ekran.Pisz_XY(40,13,"Południe", Atryb=>Podkreslony);
-      Ekran.Pisz_XY(65,8,"Wschód", Atryb=>Podkreslony);
-      Ekran.Pisz_XY(15,8,"Zachód", Atryb=>Podkreslony);
+      Ekran.Pisz_XY(40,2,"Północ", Atryb=>Czysty);
+			Ekran.RysujWszystkie(0);
+      Ekran.Pisz_XY(40,10,"Południe", Atryb=>Podkreslony);
+      Ekran.Pisz_XY(65,6,"Wschód", Atryb=>Podkreslony);
+      Ekran.Pisz_XY(15,6,"Zachód", Atryb=>Podkreslony);
       Ekran.Pisz_XY(1,19,"+= Q-koniec, A-automatyczne, M-manualne =+");
       Ekran.Pisz_XY(1,20,"+= D-Deszcz, S-Słońce =+");
       Ekran.Pisz_XY(1,21,"+= 1-Północ, 2-Południe, 3-Wschód, 4-Zachód =+");
@@ -117,8 +192,8 @@ procedure Panel is
         
   end Ekran;
   
+	-- PĘTLA PROGRAMU
   task Przebieg;
-
   task body Przebieg is
     use Ada.Numerics.Float_Random;
     
@@ -128,28 +203,22 @@ procedure Panel is
     Przesuniecie : constant Duration := 1.0;
     
     Gen : Generator;
-    function Los_Fun return Float is 
-        (Random(Gen) * (if Stan=Deszcz then 80.0 else 20.0) - 20.0);
-    Wartosc : Float := Los_Fun;
+    -- function Los_Fun return Float is 
+    --    (Random(Gen) * (if Stan=Deszcz then 80.0 else 20.0) - 20.0);
+    --Wartosc : Float := Los_Fun;
   begin
-    Reset(Gen);
+    --Reset(Gen);
     Nastepny := Clock + Przesuniecie;
 		Godzina := 0;
     loop
       delay until Nastepny;
 			
-      Ekran.Pisz_XY(10 ,18, Stan'Img, Atryb=>Podkreslony);
-			if (Godzina < 12 or else Godzina >= 18) then
-				Ekran.RysujZaluzje(38,4,6);
-			end if;
-			if (Godzina < 12 and Godzina >= 6) then
-      	Ekran.RysujZaluzje(38,4,6 - Godzina mod 6);
-			end if;
-			if (Godzina >= 12 and Godzina < 18) then
-      	Ekran.RysujZaluzje(38,4,Godzina mod 6);
-			end if;
-			
-			Ekran.Pisz_XY(2,18, Godzina'Img, Atryb=>Negatyw);
+			Ekran.Czysc;
+			Ekran.Tlo;
+      Ekran.RysujWszystkie(Godzina);
+      Ekran.Pisz_XY(10 ,18, Pogoda'Img, Atryb=>Podkreslony);
+      Ekran.Pisz_XY(18 ,18, Sterowanie'Img, Atryb=>Podkreslony);
+			Ekran.Pisz_XY(2,18, Godzina'Img & ":00", Atryb=>Czysty);
 			Godzina := (Godzina + 1) mod 24;
 			
 			
@@ -171,7 +240,11 @@ begin
   loop
     Get_Immediate(Zn);
     exit when Zn in 'q'|'Q';
-    Stan := (if Zn in 'D'|'d' then Deszcz elsif Zn in 'S'|'s' then Slonce else Stan);
-  end loop; 
+    Pogoda := (if Zn in 'D'|'d' then Deszcz elsif Zn in 'S'|'s' then Slonce else Pogoda);
+    Sterowanie := (if Zn in 'A'|'a' then Automatyczne
+			elsif Zn in 'M'|'m' then Manualne else Sterowanie);
+  end loop;
   Koniec := True;
+	delay 0.5;
+	Ekran.Czysc;
 end Panel;    
