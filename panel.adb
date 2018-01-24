@@ -129,26 +129,25 @@ procedure Panel is
 																GodzinaOdslaniania : Natural;
 																GodzinaZaslonietych : Natural;
 																GodzinaOdslonietych : Natural) is
-			Zasloniete : Natural;
-			ZaslonieteRzeczywiste : Float;
+			Zasloniete : Natural := 6;
 			CzasZaslaniania : Natural := GodzinaZaslonietych - GodzinaZaslaniania;
 			CzasOdslaniania : Natural := GodzinaOdslonietych - GodzinaOdslaniania;
 		begin
 			if (Godzina < GodzinaOdslaniania or Godzina >= GodzinaZaslonietych) then
-				ZaslonieteRzeczywiste := 6.0;
-				Zasloniete := Natural(ZaslonieteRzeczywiste);
+				Zasloniete := 6;
 				Ekran.RysujZaluzje(X,Y,Zasloniete);
 			elsif (Godzina < GodzinaOdslonietych and Godzina >= GodzinaOdslaniania) then
-				ZaslonieteRzeczywiste := ZaslonieteRzeczywiste - 6.0 / Float(CzasOdslaniania);
-				Zasloniete := Natural(ZaslonieteRzeczywiste);
-	    	Ekran.RysujZaluzje(X,Y,Zasloniete);
+				Zasloniete := Zasloniete - (Godzina - GodzinaOdslaniania) * 6 / CzasOdslaniania;
+				if Zasloniete = 6 then
+	    	 Ekran.RysujZaluzje(X,Y,Zasloniete - 1);
+			 	else
+	    	 Ekran.RysujZaluzje(X,Y,Zasloniete);
+			 	end if;
 			elsif (Godzina < GodzinaZaslaniania and Godzina >= GodzinaOdslonietych) then
-				ZaslonieteRzeczywiste := 0.0;
-				Zasloniete := Natural(ZaslonieteRzeczywiste);
+				Zasloniete := 0;
 	    	Ekran.RysujZaluzje(X,Y,Zasloniete);
 			elsif (Godzina >= GodzinaZaslaniania and Godzina < GodzinaZaslonietych) then
-				ZaslonieteRzeczywiste := ZaslonieteRzeczywiste + 6.0 / Float(CzasOdslaniania);
-				Zasloniete := Natural(ZaslonieteRzeczywiste);
+				Zasloniete := (Godzina - GodzinaZaslaniania) * 6 / CzasZaslaniania;
 	    	Ekran.RysujZaluzje(X,Y,Zasloniete);
 			end if;
 		end AktualizujZaluzje;
