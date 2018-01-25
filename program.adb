@@ -115,7 +115,7 @@ procedure Program is
 			if (Pogoda = Slonce) then
 				Ekran.AktualizujZaluzje(38,3,Godzina,16,5,21, 9);
 			elsif (Pogoda = Deszcz) then
-				Ekran.AktualizujZaluzje(38,3,0,16,5,21, 9);
+				Ekran.AktualizujZaluzje(38,3,Godzina,20,6,22, 8);
 			end if;
 		end RysujPolnoc;
 		
@@ -307,7 +307,7 @@ procedure Program is
 		end loop;
     exception
       when E:others =>
-        Put_Line("Error: Zadanie Przebieg");
+        Put_Line("Error: Zadanie");
         Put_Line(Exception_Name (E) & ": " & Exception_Message (E)); 
 	end KontrolerPolnocy;
 	
@@ -330,7 +330,7 @@ procedure Program is
 		end loop;
     exception
       when E:others =>
-        Put_Line("Error: Zadanie Przebieg");
+        Put_Line("Error: Zadanie");
         Put_Line(Exception_Name (E) & ": " & Exception_Message (E)); 
 	end KontrolerPoludnia;
 	
@@ -353,7 +353,7 @@ procedure Program is
 		end loop;
     exception
       when E:others =>
-        Put_Line("Error: Zadanie Przebieg");
+        Put_Line("Error: Zadanie");
         Put_Line(Exception_Name (E) & ": " & Exception_Message (E)); 
 	end KontrolerWschodu;
 	
@@ -376,7 +376,7 @@ procedure Program is
 		end loop;
     exception
       when E:others =>
-        Put_Line("Error: Zadanie Przebieg");
+        Put_Line("Error: Zadanie");
         Put_Line(Exception_Name (E) & ": " & Exception_Message (E)); 
 	end KontrolerZachodu;
 	
@@ -400,7 +400,7 @@ procedure Program is
     Ekran.Pisz_XY(1,11,"");
     exception
       when E:others =>
-        Put_Line("Error: Zadanie Przebieg");
+        Put_Line("Error: Zadanie");
         Put_Line(Exception_Name (E) & ": " & Exception_Message (E)); 
   end Przebieg;
 
@@ -441,7 +441,7 @@ procedure Program is
 		Koniec := True;
     exception
       when E:others =>
-        Put_Line("Error: Zadanie Przebieg");
+        Put_Line("Error: Zadanie");
         Put_Line(Exception_Name (E) & ": " & Exception_Message (E)); 
 	end KontrolerSterowania;
 
