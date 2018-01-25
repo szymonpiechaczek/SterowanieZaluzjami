@@ -1,5 +1,3 @@
-with Panel;
-
 package body Zaluzja is
 	
 function RysujZamknieta return String is
