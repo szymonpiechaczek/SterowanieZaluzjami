@@ -268,7 +268,7 @@ procedure Program is
       Ekran.Pisz_XY(1,23," 3-Wschód");
       Ekran.Pisz_XY(1,24," 4-Zachód");
     end Tlo; 
-		
+				
 		procedure Rysowanie(Godzina : Natural) is
 		begin
 			Ekran.Czysc;
